@@ -1,0 +1,91 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+	<meta charset="utf-8" />
+    <style>
+        #results {
+            width: 500px;
+            height: auto;
+        }
+    </style>
+    <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+    <script>
+        var client;
+        window.addEventListener("load", function () {
+            client = io();
+
+            document.getElementById("add").addEventListener("click", function () {
+                action("add");
+            })
+            document.getElementById("download").addEventListener("click", function () {
+                action("download");
+            })
+            document.getElementById("changePass").addEventListener("click", function () {
+                action("change");
+            })
+            document.getElementById("updatePass").addEventListener("click", function () {
+                action("update");
+            })
+
+            function action(action) {
+                switch (action) {
+                    case "add":
+                        client.emit("add", {
+                            login: document.getElementById("login").value,
+                            password: document.getElementById("password").value
+                        })
+                        break;
+                    case "download":
+                        client.emit("download", {});
+                        break;
+                    case "change":
+                        client.emit("changePass", {
+                            id: document.getElementById("users").value,
+                            password: document.getElementById("password").value,
+                        })
+                        break;
+                    case "update":
+                        client.emit("update", {
+                            id: document.getElementById("users").value,
+                            password: document.getElementById("password").value,
+                            login: document.getElementById("login").value,
+                        })
+                        break;
+                }
+            }
+
+            client.on("download", function (data) {
+                //alert(data.clientName)
+                console.log(data);
+                var db = data.data;
+                document.getElementById("users").innerHTML = "";
+                for (var i = 0; i < db.length; i++) {
+                    var option = document.createElement("option");
+                    option.innerHTML = db[i]._id;
+                    document.getElementById("users").appendChild(option);
+                }
+                document.getElementById("results").innerHTML = JSON.stringify(db, null, 4);
+                console.log(JSON.stringify(db, null, 4));
+            })
+
+        })
+    </script>
+</head>
+<body>
+    <div>
+        <input type="text" id="login" />
+        <input type="text" id="password" />
+        <input type="button" id="add" value="Dodaj" />
+    </div>
+    <div>
+        <input type="button" id="download" value="Pobierz" />
+    </div>
+    <div>
+        <input type="button" id="changePass" value="Zmień hasło" onclick=""/>
+        <input type="button" id="updatePass" value="Aktualizuj" />
+        <select id="users"></select>
+    </div>
+    <textarea id="results"></textarea>
+</body>
+</html>
